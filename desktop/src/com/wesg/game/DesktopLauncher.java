@@ -79,8 +79,11 @@ public class DesktopLauncher implements ApplicationListener {
 
 		int tempIndex = 0;
 		for (ModelInstance m : modelInstances) {
-			tempIndex += 5;
-			m.transform.setToTranslation(new Vector3(tempIndex, rand.nextInt(3), 0));
+			tempIndex ++;
+			for (int i = 0; i<10; i++){
+				m.transform.setToTranslation(new Vector3(tempIndex*5, i, i));
+				System.out.println(i);
+			}
 		}
 	}
 
