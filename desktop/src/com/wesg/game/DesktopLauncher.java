@@ -17,6 +17,8 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import java.util.LinkedList;
 
 import com.badlogic.gdx.math.Vector3;
+import com.sun.org.apache.xpath.internal.operations.Mod;
+
 import java.util.Random;
 
 public class DesktopLauncher implements ApplicationListener {
@@ -25,8 +27,13 @@ public class DesktopLauncher implements ApplicationListener {
 	public PerspectiveCamera cam;
 	public ModelBatch modelBatch;
 
-	public LinkedList<Model> models;
-	public LinkedList<ModelInstance> modelInstances;
+	public LinkedList<Model> grassModels;
+	public LinkedList<Model> dirtModels;
+	public LinkedList<ModelInstance> grassModelInstances;
+	public LinkedList<ModelInstance> dirtModelInstances;
+
+
+
 
 	public static void main(String[] args){
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
@@ -59,31 +66,41 @@ public class DesktopLauncher implements ApplicationListener {
 
 		ModelBuilder modelBuilder = new ModelBuilder();
 
-		models = new LinkedList<Model>();
-		modelInstances = new LinkedList<ModelInstance>();
+		grassModels = new LinkedList<Model>();
+		dirtModels = new LinkedList<Model>();
+		grassModelInstances = new LinkedList<ModelInstance>();
+		dirtModelInstances = new LinkedList<ModelInstance>();
 
-
-		models.add(modelBuilder.createBox(5f, 5f, 5f,
-				new Material(ColorAttribute.createDiffuse(Color.RED)),
-				Usage.Position | Usage.Normal));
-
-		for (int i = 0; i < 100; i++){
-			models.add(modelBuilder.createBox(5f, 5f, 5f,
-					new Material(ColorAttribute.createDiffuse(Color.RED)),
+		for (int i = 0; i < 1000; i++){
+			grassModels.add(modelBuilder.createBox(5f, 5f, 5f,
+					new Material(ColorAttribute.createDiffuse(Color.GREEN)),
+					Usage.Position | Usage.Normal));
+		}
+		for (int i = 0; i < 1000; i++){
+			dirtModels.add(modelBuilder.createBox(5f, 5f, 5f,
+					new Material(ColorAttribute.createDiffuse(Color.BROWN)),
 					Usage.Position | Usage.Normal));
 		}
 
-		for (Model m : models) {
-			modelInstances.add(new ModelInstance(m));
+		for (Model m : grassModels) {
+			grassModelInstances.add(new ModelInstance(m));
 		}
 
-		int tempIndex = 0;
-		for (ModelInstance m : modelInstances) {
-			tempIndex ++;
-			for (int i = 0; i<10; i++){
-				m.transform.setToTranslation(new Vector3(tempIndex*5, i, i));
-				System.out.println(i);
+		int teX;
+		int teZ = -1;
+		for (int x = 0; x < grassModelInstances.size(); x++) {
+			ModelInstance m = grassModelInstances.get(x);
+			teX = (int)(x % Math.sqrt(grassModelInstances.size()));
+
+			if (teX >= Math.sqrt(grassModelInstances.size()) - 1) {
+				teZ++;
 			}
+			m.transform.setToTranslation(new Vector3(teX * 5, (int)(ImprovedNoise.noise(3.14, 42,rand.nextInt(14))*10), teZ * 5));
+
+
+			System.out.print(teX);
+			System.out.print(" ");
+			System.out.println(teZ);
 		}
 	}
 
@@ -102,7 +119,7 @@ public class DesktopLauncher implements ApplicationListener {
 
 		modelBatch.begin(cam);
 
-		for (ModelInstance m : modelInstances){
+		for (ModelInstance m : grassModelInstances){
 			modelBatch.render(m, environment);
 		}
 
@@ -114,7 +131,7 @@ public class DesktopLauncher implements ApplicationListener {
 	@Override
 	public void dispose() {
 		modelBatch.dispose();
-		for (Model m : models) {
+		for (Model m : grassModels) {
 			m.dispose();
 		}
 	}
