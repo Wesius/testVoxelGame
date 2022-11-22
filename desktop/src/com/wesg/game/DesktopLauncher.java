@@ -12,10 +12,12 @@ import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 
 import java.util.LinkedList;
 
+import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.sun.org.apache.xpath.internal.operations.Mod;
 
@@ -31,6 +33,10 @@ public class DesktopLauncher implements ApplicationListener {
 	public LinkedList<Model> dirtModels;
 	public LinkedList<ModelInstance> grassModelInstances;
 	public LinkedList<ModelInstance> dirtModelInstances;
+
+
+	public Model testModel;
+	public ModelInstance testModelInstance;
 
 
 
@@ -56,7 +62,7 @@ public class DesktopLauncher implements ApplicationListener {
 
 		cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		cam.position.set(10f, 10f, 10f);
-		cam.lookAt(0,0,0);
+		cam.lookAt(0, 0, 0);
 		cam.near = 1f;
 		cam.far = 300f;
 		cam.update();
@@ -64,38 +70,44 @@ public class DesktopLauncher implements ApplicationListener {
 		camController = new CameraInputController(cam);
 		Gdx.input.setInputProcessor(camController);
 
-		ModelBuilder modelBuilder = new ModelBuilder();
-
 		grassModels = new LinkedList<Model>();
 		dirtModels = new LinkedList<Model>();
 		grassModelInstances = new LinkedList<ModelInstance>();
 		dirtModelInstances = new LinkedList<ModelInstance>();
 
-		for (int i = 0; i < 1000; i++){
-			grassModels.add(modelBuilder.createBox(5f, 5f, 5f,
+		ModelBuilder modelBuilder = new ModelBuilder();
+		/*
+		for (int i = 0; i < 1000; i++) {
+			grassModels.add(modelBuilder.createBox(1f, 1f, 1f,
 					new Material(ColorAttribute.createDiffuse(Color.GREEN)),
 					Usage.Position | Usage.Normal));
 		}
-		for (int i = 0; i < 1000; i++){
-			dirtModels.add(modelBuilder.createBox(5f, 5f, 5f,
-					new Material(ColorAttribute.createDiffuse(Color.BROWN)),
-					Usage.Position | Usage.Normal));
-		}
+		*/
+
+
+		modelBuilder.begin();
+		modelBuilder.node();
+		MeshPartBuilder mpb = modelBuilder.part("box", primitiveType, attributes, material);
+		BoxShapeBuilder.build(mpb, -5, -5, -5, width1, height1, depth1);
+		BoxShapeBuilder.build(mpb, x2, y2, z2, width2, height2, depth2);
+		testModel = modelBuilder.end();
+
 
 		for (Model m : grassModels) {
 			grassModelInstances.add(new ModelInstance(m));
 		}
 
+
 		int teX;
 		int teZ = -1;
 		for (int x = 0; x < grassModelInstances.size(); x++) {
 			ModelInstance m = grassModelInstances.get(x);
-			teX = (int)(x % Math.sqrt(grassModelInstances.size()));
+			teX = (int) (x % Math.sqrt(grassModelInstances.size()));
 
 			if (teX >= Math.sqrt(grassModelInstances.size()) - 1) {
 				teZ++;
 			}
-			m.transform.setToTranslation(new Vector3(teX * 5, (int)(ImprovedNoise.noise(3.14, 42,rand.nextInt(14))*10), teZ * 5));
+			m.transform.setToTranslation(new Vector3(teX, (int) (ImprovedNoise.noise(3.14, 42, rand.nextInt(14)) * 10), teZ));
 
 
 			System.out.print(teX);
